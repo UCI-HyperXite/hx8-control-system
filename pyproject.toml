@@ -1,0 +1,27 @@
+[tool.isort]
+profile = "black"
+src_paths = "pod-control/src"
+
+[tool.pytest.ini_options]
+pythonpath = "pod-control/src"
+addopts = "--verbose --cov pod-control"
+testpaths = "pod-control/tests"
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.mypy]
+mypy_path = "pod-control/src:pod-control/stubs"
+explicit_package_bases = true
+strict = true
+exclude = [".venv"]
+
+[[tool.mypy.overrides]]
+module = [
+   'socketio',
+]
+# ignore_missing_imports = true

@@ -1,0 +1,115 @@
+name: Run Checks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-backend:
+    name: Check Backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: "pip"
+          cache-dependency-path: |
+            pod-control/requirements.txt
+            pod-control/requirements-dev.txt
+
+      - name: Install Python dependencies
+        working-directory: ./pod-control
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Format with Black
+        uses: reviewdog/action-black@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workdir: pod-control
+          level: warning
+          reporter: github-pr-review
+
+      - name: Lint with flake8
+        uses: reviewdog/action-flake8@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workdir: pod-control
+          level: warning
+          reporter: github-pr-review
+
+      - name: Cache `.mypy_cache`
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/.mypy_cache
+          key: ${{ runner.os }}-python3.10-mypy-cache
+
+      - name: Lint with mypy
+        uses: tsuyoshicho/action-mypy@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          level: error
+          reporter: github-pr-review
+
+      - name: Run tests with pytest
+        run: pytest
+        # uses: reviewdog/action-pytest@v1 (WIP)
+        # with:
+        #   github_token: ${{ secrets.GITHUB_TOKEN }}
+        #   reporter: github-pr-review
+        #   level: error
+
+  check-frontend:
+    name: Check Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "npm"
+          cache-dependency-path: control-station/package-lock.json
+
+      - name: Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/control-station/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('control-station/package-lock.json') }}
+
+      - name: Install frontend dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        working-directory: ./control-station
+        run: npm ci
+
+      - name: Format with Prettier
+        uses: EPMatt/reviewdog-action-prettier@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workdir: control-station
+          level: warning
+          reporter: github-pr-review
+          prettier_flags: src
+
+      - name: Lint with ESLint
+        uses: reviewdog/action-eslint@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workdir: control-station
+          level: error
+          reporter: github-pr-review
+          eslint_flags: "src/"
+
+      - name: Check can build
+        working-directory: ./control-station
+        run: npm run build
