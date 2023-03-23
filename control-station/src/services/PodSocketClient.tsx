@@ -25,18 +25,21 @@ class PodSocketClient {
 	constructor(setPodData: SetPodData) {
 		this.socket = ioNamespace("pod");
 		this.serverEvents = { connect: this.onConnect, pong: this.onPong };
-
-		Object.entries(this.serverEvents).forEach(([event, handler]) =>
-			this.socket.on(event as keyof ServerToClientEvents, handler.bind(this))
-		);
-
 		this.setPodData = setPodData;
 	}
 
+	on() {
+		console.debug("Enabling socket event handlers");
+		Object.entries(this.serverEvents).forEach(([event, handler]) => {
+			this.socket.on(event as keyof ServerToClientEvents, handler.bind(this));
+		});
+	}
+
 	off() {
-		Object.keys(this.serverEvents).forEach((event) =>
-			this.socket.off(event as keyof ServerToClientEvents)
-		);
+		console.debug("Disabling socket event handlers");
+		Object.keys(this.serverEvents).forEach((event) => {
+			this.socket.off(event as keyof ServerToClientEvents);
+		});
 	}
 
 	onConnect() {
@@ -49,7 +52,6 @@ class PodSocketClient {
 	}
 
 	sendPing() {
-		console.log("sending ping", this);
 		this.socket.emit("ping", "ping");
 	}
 }
