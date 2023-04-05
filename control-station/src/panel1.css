@@ -1,0 +1,295 @@
+body {
+  font-size: 14px;
+}
+
+#main {
+  display: flex;
+  justify-content: center;
+}
+
+.row1 {
+  color: rgba(0, 0, 0, 1);
+  width: 100%;
+  font-size: 25px;
+  position: static;
+  border: 3px;
+  overflow: hidden;
+  text-align: center;
+  font-family: Nunito;
+}
+
+.row2 {
+  width: 100%;
+  position: static;
+  overflow: hidden;
+}
+
+.row3 {
+  width: 100%;
+  position: static;
+  overflow: hidden;
+}
+
+.row4 {
+  width: 100%;
+  height: 30px;
+  position: static;
+  overflow: hidden;
+}
+
+.row5 {
+  width: 100%;
+  background: rgb(137, 137, 137, 1);
+
+  position: static;
+  overflow: hidden;
+}
+
+.camera {
+  width: 474px;
+  height: 434px;
+  background: rgb(59, 53, 53);
+  opacity: 1;
+  position: absolute;
+  top: 75px;
+  left: 30px;
+  overflow: hidden;
+}
+
+.camerabar {
+  width: 474px;
+  height: 20px;
+  background: rgba(137, 137, 137, 1);
+  font-family: Nunito;
+  font-weight: Bold;
+  font-size: 12px;
+  opacity: 1;
+  text-align: center;
+  position: absolute;
+  top: 509px;
+  left: 30px;
+  overflow: hidden;
+}
+
+.console {
+  width: 817px;
+  height: 434px;
+  background: rgb(53, 50, 50);
+  opacity: 1;
+  position: absolute;
+  top: 95px;
+  left: 567px;
+  overflow: hidden;
+}
+
+.consolebar {
+  width: 817px;
+  height: 20px;
+  background: rgb(137, 137, 137, 1);
+  opacity: 1;
+  position: absolute;
+  top: 75px;
+  left: 567px;
+  overflow: hidden;
+  font-family: Nunito;
+  font-weight: Bold;
+  font-size: 12px;
+  opacity: 1;
+  text-align: center;
+}
+
+.distancename {
+  width: 230px;
+  color: rgba(0, 0, 0, 1);
+  position: absolute;
+  top: 755px;
+  left: 1000px;
+  font-family: Nunito;
+  position: absolute;
+  font-weight: Medium;
+  font-size: 24px;
+  opacity: 1;
+  text-align: left;
+}
+
+.invertername {
+  width: 230px;
+  color: rgba(0, 0, 0, 1);
+  position: absolute;
+  top: 821px;
+  left: 1000px;
+  position: absolute;
+  font-family: Nunito;
+  font-weight: Medium;
+  font-size: 24px;
+  opacity: 1;
+  text-align: left;
+}
+
+.buttonstart {
+  background-color: #1dc523;
+  /* Green */
+  border: none;
+  color: rgb(0, 0, 0);
+  padding: 20px 42px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 40px;
+  margin: 4px 2px;
+  cursor: pointer;
+  top: 755px;
+  left: 30px;
+  position: absolute;
+
+}
+
+.buttonstop {
+  background-color: #c7620f;
+  /* Green */
+  border: none;
+  color: rgb(0, 0, 0);
+  padding: 20px 42px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 40px;
+  margin: 4px 2px;
+  cursor: pointer;
+  top: 755px;
+  left: 300px;
+  position: absolute;
+
+}
+
+.buttonforcequit {
+  background-color: #d90e0e;
+  /* Green */
+  border: none;
+  color: rgb(0, 0, 0);
+  padding: 20px 42px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 40px;
+  margin: 4px 2px;
+  cursor: pointer;
+  top: 755px;
+  left: 550px;
+  position: absolute;
+
+}
+
+
+.sensors {
+  width: 1354px;
+  height: 140px;
+  background: rgb(137, 137, 137, 1);
+  opacity: 1;
+  position: absolute;
+  top: 581px;
+  left: 30px;
+  overflow: hidden;
+}
+
+
+.ptname {
+  width: 44px;
+  color: rgba(0, 0, 0, 1);
+  position: absolute;
+  top: 656px;
+  left: 57px;
+  font-family: Nunito;
+  font-weight: Medium;
+  font-size: 24px;
+  opacity: 1;
+  text-align: left;
+}
+
+.eprname {
+  width: 57px;
+  color: rgba(0, 0, 0, 1);
+  position: absolute;
+  top: 653px;
+  left: 321px;
+  font-family: Nunito;
+  font-weight: Medium;
+  font-size: 24px;
+  opacity: 1;
+  text-align: left;
+}
+
+.sensorname {
+  width: 160px;
+  color: rgba(0, 0, 0, 1);
+  position: absolute;
+  top: 588px;
+  left: 48px;
+  font-family: Nunito;
+  font-weight: Bold;
+  font-size: 24px;
+  opacity: 0.6600000262260437;
+  text-align: left;
+}
+
+.bmsname {
+  width: 202px;
+  color: rgba(0, 0, 0, 1);
+  position: absolute;
+  top: 656px;
+  left: 611px;
+  font-family: Nunito;
+  font-weight: Medium;
+  font-size: 24px;
+  opacity: 1;
+  text-align: left;
+}
+
+.pnbutton {
+  background-color: #ffffff;
+  /* Green */
+  border: none;
+  color: rgb(0, 0, 0);
+  padding: 5px 122px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 20px;
+  margin: 4px 2px;
+  cursor: pointer;
+  top: 656px;
+  left: 1000px;
+  position: absolute;
+
+}
+
+.props {
+  background-color: #ffffff;
+  /* Green */
+  border: none;
+  color: rgb(0, 0, 0);
+  padding: 5px 127px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 20px;
+  margin: 4px 2px;
+  cursor: pointer;
+  top: 606px;
+  left: 1000px;
+  position: absolute;
+
+}
+
+.pongtest {
+  width: 88px;
+  color: rgba(0, 0, 0, 1);
+  position: absolute;
+  top: 617px;
+  left: 587px;
+  font-family: Nunito;
+  font-weight: Medium;
+  font-size: 48px;
+  opacity: 1;
+  text-align: left;
+}
