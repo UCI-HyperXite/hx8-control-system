@@ -1,11 +1,11 @@
-import { sendPing } from "services/socketHandler";
+import { start } from "services/piserver";
+
 
 
 function Dashboard() {
 	return (
 		<div>
-			<button onClick={sendPing}>Send Ping</button>
-
+			<button onClick={start}>Start</button>
 		</div>
 	);
 }

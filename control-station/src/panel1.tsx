@@ -1,14 +1,14 @@
+import Propulsion from 'propulsion';
+import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 import { Dashboard } from "views";
 import "./panel1.css";
-//import { Dashboard } from "views";
-
 
 function Panel1() {
-    //     const navigate = useNavigate(); 
-    //   const routeChange1 = () =>{ 
-    //     const path = `propulsion`; 
-    //     navigate(path);
-    //   }
+    const navigate = useNavigate();
+    const routeChange1 = () => {
+        const path = `.propulsion`;
+        navigate(path);
+    }
     return (
         <div>
             <div className="row1">
@@ -17,7 +17,7 @@ function Panel1() {
                 <hr></hr>
             </div>
             <div className="row2">
-                <div className="camera"><Dashboard /></div>
+                <div className="camera"><Dashboard /> </div>
                 <div className="camerabar">RASPBERRY PI CAMERA</div>
                 <div className="console"></div>
                 <div className="consolebar">ERROR CONSOLE</div>
@@ -27,8 +27,12 @@ function Panel1() {
                 <span className="ptname">PT:</span>
                 <span className="eprname">EPR:</span><span className="sensorname"> Sensor Data:</span><span className="bmsname">BMS Fault
                     Value:</span>
-                {/* <Link to="/pneumatics"><button className="pnbutton" >Pneumatics</button></Link>
-                <Link to="/pneumatics"><button className="props" >Propulsion</button> </Link> */}
+                <button className="pnbutton" onClick={routeChange1}>Pneumatics</button>
+                <Link to="/propulsion"><button className="props" >Propulsion</button> </Link>
+                <Routes>
+                    <Route path="propulsion" element={<Propulsion />} />
+                </Routes>
+
             </div>
             <div className="row4">
                 <span className="distancename">Distance Traveled: </span>
