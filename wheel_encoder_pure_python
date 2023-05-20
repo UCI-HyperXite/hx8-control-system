@@ -1,8 +1,8 @@
 import time
 import RPi.GPIO as GPIO
 
-outputA = 4
-outputB = 2
+outputA = 4 #green/black/black
+outputB = 2 #white/red/white,  brown/orange/blue
 counter = 0
 aState = 0
 aLastState = 0
@@ -22,7 +22,7 @@ def setup():
     print("Setup complete.")
 
 def loop():
-    global aState, counter, t2
+    global aState, counter, t2, bLastState, deltat, t1, t2, aLastState
     aState = GPIO.input(outputA)
 
     deltad = 1.0 / 8.0
@@ -31,17 +31,15 @@ def loop():
         t2 = time.time() * 1000
 
         if GPIO.input(outputB) != aState:
+            counter -= 1
+        else:
             counter += 1
+            print("counter: ", counter)
             deltat = t2 - t1
             calc = 1000 * deltad / deltat
-            print(t1)
-            print(t2)
             print("Instantaneous Speed:", calc)
             t1 = t2
-        else:
-            counter -= 1
 
-        print("[Position:", counter, "]")
 
     aLastState = aState
 
