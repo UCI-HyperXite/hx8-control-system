@@ -28,18 +28,20 @@ class PodSocketClient {
 		this.setPodData = setPodData;
 	}
 
-	on() {
+	enable(): void {
+		this.socket.connect();
 		console.debug("Enabling socket event handlers");
 		Object.entries(this.serverEvents).forEach(([event, handler]) => {
 			this.socket.on(event as keyof ServerToClientEvents, handler.bind(this));
 		});
 	}
 
-	off() {
+	disable(): void {
 		console.debug("Disabling socket event handlers");
 		Object.keys(this.serverEvents).forEach((event) => {
 			this.socket.off(event as keyof ServerToClientEvents);
 		});
+		this.socket.disconnect();
 	}
 
 	onConnect() {

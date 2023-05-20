@@ -6,9 +6,9 @@ function usePodData() {
 	const podSocketClient = useMemo(() => new PodSocketClient(setPodData), []);
 
 	useEffect(() => {
-		podSocketClient.on();
+		podSocketClient.enable();
 		// disable socket instance on cleanup
-		return podSocketClient.off.bind(podSocketClient);
+		return podSocketClient.disable.bind(podSocketClient);
 	}, [podSocketClient]);
 
 	return { podData, podSocketClient };
