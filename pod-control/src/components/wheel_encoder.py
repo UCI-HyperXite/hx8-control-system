@@ -2,57 +2,62 @@ import time
 
 import RPi.GPIO as GPIO
 
-outputA = 4  # green/black/black
-outputB = 2  # white/red/white,  brown/orange/blue
-counter = 0
-aState = 0
-aLastState = 0
-t1 = 0
-t2 = 0
-deltad = 0.0
-deltat = 0.0
-calc = 0.0
+PIN_ENCODER_A = 14
+PIN_ENCODER_B = 15
 
 
-def setup():
-    global aLastState, t1
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(outputA, GPIO.IN)
-    GPIO.setup(outputB, GPIO.IN)
-    t1 = time.time() * 1000
-    aLastState = GPIO.input(outputA)
-    print("Setup complete.")
+class WheelEncoder:
+    def __init__(self) -> None:
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(PIN_ENCODER_A, GPIO.IN)
+        GPIO.setup(PIN_ENCODER_B, GPIO.IN)
+
+        self.counter = 0
+        self._last_time = time.time()
+        self._last_A = self._read_A()
+        self._last_B = self._read_B()
+        print("Setup complete.")
+
+    def measure(self) -> float:
+        encoder_A = self._read_A()
+        encoder_B = self._read_B()
+
+        delta_d = 1 / 8
+
+        calc = 0.0
+        if encoder_A != self._last_A or encoder_B != self._last_B:
+            current_time = time.time()
+
+            if encoder_B != encoder_A:
+                self.counter -= 1
+            else:
+                self.counter += 1
+                print("counter: ", self.counter)
+                delta_t = current_time - self._last_time
+                calc = delta_d / delta_t
+                print("Instantaneous Speed:", calc)
+                self._last_time = current_time
+
+        self._last_A = encoder_A
+        self._last_B = encoder_B
+        return calc
+
+    def _read_A(self) -> bool:
+        return GPIO.input(PIN_ENCODER_A)
+
+    def _read_B(self) -> bool:
+        return GPIO.input(PIN_ENCODER_B)
+
+    def __del__(self) -> None:
+        GPIO.cleanup()
 
 
-def loop():
-    global aState, counter, t2, bLastState, deltat, t1, t2, aLastState
-    aState = GPIO.input(outputA)
-
-    deltad = 1.0 / 8.0
-
-    if aState != aLastState:
-        t2 = time.time() * 1000
-
-        if GPIO.input(outputB) != aState:
-            counter -= 1
-        else:
-            counter += 1
-            print("counter: ", counter)
-            deltat = t2 - t1
-            calc = 1000 * deltad / deltat
-            print("Instantaneous Speed:", calc)
-            t1 = t2
-
-    aLastState = aState
-
-
-def main():
-    setup()
+def main() -> None:
+    wheel_encoder = WheelEncoder()
     try:
         while True:
-            loop()
+            wheel_encoder.measure()
     except KeyboardInterrupt:
-        GPIO.cleanup()
         print("Program terminated.")
 
 
