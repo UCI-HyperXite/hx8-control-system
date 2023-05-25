@@ -17,7 +17,7 @@ server = uvicorn.Server(config)
 
 async def main() -> None:
     """Run Uvicorn server and FSM concurrently"""
-    asyncio.create_task(fsm.run_periodic())
+    asyncio.create_task(fsm.run())
     await server.serve()
 
 
