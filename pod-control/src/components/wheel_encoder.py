@@ -1,55 +1,69 @@
 import time
+from logging import getLogger
+from typing import Literal
 
 import RPi.GPIO as GPIO
+
+log = getLogger(__name__)
 
 PIN_ENCODER_A = 14
 PIN_ENCODER_B = 15
 
 
+EncoderState = Literal[0, 1, 2, 3]
+EncoderDiff = Literal[-1, 0, 1, 2]
+
+
+def encode_state(a: bool, b: bool) -> EncoderState:
+    """Produce a two-bit gray code."""
+    return (a << 1) + (a ^ b)
+
+
+def state_difference(p: EncoderState, q: EncoderState) -> EncoderDiff:
+    """Provide the difference in states in the range -1 to 2."""
+    return (p - q + 1) % 4 - 1
+
+
 class WheelEncoder:
     def __init__(self) -> None:
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(PIN_ENCODER_A, GPIO.IN)
-        GPIO.setup(PIN_ENCODER_B, GPIO.IN)
+        GPIO.setup((PIN_ENCODER_A, PIN_ENCODER_B), GPIO.IN)
 
         self.counter = 0
         self._last_time = time.time()
-        self._last_A = self._read_A()
-        self._last_B = self._read_B()
-        print("Setup complete.")
+        self._last_state = self._read_state()
+        log.debug("Setup complete.")
 
     def measure(self) -> float:
-        encoder_A = self._read_A()
-        encoder_B = self._read_B()
+        current_time = time.time()
+        state = self._read_state()
 
-        delta_d = 1 / 8
+        delta_d = 1 / 16
 
-        calc = 0.0
-        if encoder_A != self._last_A or encoder_B != self._last_B:
-            current_time = time.time()
+        speed = 0.0
+        inc = state_difference(state, self._last_state)
 
-            if encoder_B != encoder_A:
-                self.counter -= 1
-            else:
-                self.counter += 1
-                print("counter: ", self.counter)
-                delta_t = current_time - self._last_time
-                calc = delta_d / delta_t
-                print("Instantaneous Speed:", calc)
-                self._last_time = current_time
+        if inc == 2:
+            log.error(f"Encoder skipped from {state} to {self._last_state}")
+            raise ValueError("Illegal encoder transition.")
 
-        self._last_A = encoder_A
-        self._last_B = encoder_B
-        return calc
+        if inc != 0:
+            log.info(f"counter: {self.counter}")
+            delta_t = current_time - self._last_time
+            speed = inc * delta_d / delta_t
+            log.info(f"Instantaneous Speed: {speed}")
+            self._last_time = current_time
 
-    def _read_A(self) -> bool:
-        return GPIO.input(PIN_ENCODER_A)
+        self._last_state = state
+        self.counter += inc
 
-    def _read_B(self) -> bool:
-        return GPIO.input(PIN_ENCODER_B)
+        return speed
+
+    def _read_state(self) -> int:
+        return encode_state(GPIO.input(PIN_ENCODER_A), GPIO.input(PIN_ENCODER_B))
 
     def __del__(self) -> None:
-        GPIO.cleanup()
+        GPIO.cleanup((PIN_ENCODER_A, PIN_ENCODER_B))
 
 
 def main() -> None:
@@ -57,6 +71,7 @@ def main() -> None:
     try:
         while True:
             wheel_encoder.measure()
+            time.sleep(0.001)
     except KeyboardInterrupt:
         print("Program terminated.")
 
