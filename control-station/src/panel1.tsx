@@ -1,48 +1,72 @@
-import Propulsion from 'propulsion';
-import { Link, Route, Routes, useNavigate } from 'react-router-dom';
-import { Dashboard } from "views";
+import { CustomConsole } from 'customconsole';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import { bms, fstop, load, odometer, pt300, pt5000, shuntcurr, speed, start, stop, vminus, vplus } from "services/piserver";
+
 import "./panel1.css";
 
 function Panel1() {
-    const navigate = useNavigate();
-    const routeChange1 = () => {
-        const path = `.propulsion`;
-        navigate(path);
-    }
+
     return (
         <div>
-            <div className="row1">
-                <b>HyperXite 8 Control
-                    Panel</b>
-                <hr></hr>
-            </div>
-            <div className="row2">
-                <div className="camera"><Dashboard /> </div>
-                <div className="camerabar">RASPBERRY PI CAMERA</div>
-                <div className="console"></div>
-                <div className="consolebar">ERROR CONSOLE</div>
-            </div>
-            <div className="row3">
-                <div className="sensors"></div>
-                <span className="ptname">PT:</span>
-                <span className="eprname">EPR:</span><span className="sensorname"> Sensor Data:</span><span className="bmsname">BMS Fault
-                    Value:</span>
-                <button className="pnbutton" onClick={routeChange1}>Pneumatics</button>
-                <Link to="/propulsion"><button className="props" >Propulsion</button> </Link>
-                <Routes>
-                    <Route path="propulsion" element={<Propulsion />} />
-                </Routes>
+            <Container fluid>
+                <Row>
+                    <div className='row1'><b>HyperXite 8 Control
+                        Panel</b></div>
+                    <hr></hr>
+                </Row>
+                <Row>
+                    <div className="prop"><h1 style={{ fontSize: '20px', textAlign: 'center' }}>Pneumatics</h1><table>
+                        <tr>
+                            <th style={{ fontSize: '25px' }}>PT 300</th>
+                            <th style={{ fontSize: '25px' }}>PT 5000</th>
+                        </tr>
+                        <tr>
+                            <td style={{ fontSize: '50px', color: 'white' }}>{pt300}</td>
+                            <td style={{ fontSize: '50px', color: 'white' }}>{pt5000}</td>
+                        </tr>
+                    </table></div>
+                    <div className="pnuem" > <table>
+                        <tr>
+                            <th style={{ fontSize: '30px' }}>Speed</th>
+                            <th style={{ fontSize: '30px' }}>Odometer</th>
+                        </tr>
+                        <tr>
+                            <td style={{ fontSize: '80px', color: 'white' }}>{speed}</td>
+                            <td style={{ fontSize: '80px', color: 'white' }}>{odometer}</td>
+                        </tr></table></div>
+                    <div className="console"><CustomConsole /></div>
+                    <div className="consolebar">Error Console</div>
 
-            </div>
-            <div className="row4">
-                <span className="distancename">Distance Traveled: </span>
-                <span className="invertername">Inverter Frequency:</span>
-                <button className="buttonstart">START</button>
-                <button className="buttonstop">STOP</button>
-                <button className="buttonforcequit">FORCE STOP</button>
-            </div>
-            <div className="row5">
-            </div>
+                </Row>
+                <Row>
+
+                    <Row>
+                        <div className='sensors'> <table>
+                            <tr>
+                                <th style={{ fontSize: '20px' }}>BMS HSV</th>
+                                <th style={{ fontSize: '20px' }}>VPlus</th>
+                                <th style={{ fontSize: '20px' }}>VMinus</th>
+                                <th style={{ fontSize: '20px' }}>Shunt Current</th>
+                            </tr>
+                            <tr>
+                                <td style={{ fontSize: '50px', color: 'white' }}>{bms}</td>
+                                <td style={{ fontSize: '50px', color: 'white' }}>{vplus}</td>
+                                <td style={{ fontSize: '50px', color: 'white' }}>{vminus}</td>
+                                <td style={{ fontSize: '50px', color: 'white' }}>{shuntcurr}</td>
+                            </tr></table></div>
+                    </Row>
+
+
+                </Row>
+                <Row>
+
+                    <button className="buttonstart" onClick={start}>START</button>
+                    <button className="buttonstop" onClick={stop}>STOP</button>
+                    <button className="buttonforcequit" onClick={fstop}>FORCE STOP</button>
+                    <button className="buttonload" onClick={load}>LOADING</button>
+                </Row>
+            </Container>
         </div>
     );
 
