@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
-const SERVER_URL = "http://169.234.17.168:8000";
-//const SERVER_URL = "http://localhost:8000";
+//const SERVER_URL = "http://169.234.44.242:8000";
+const SERVER_URL = "http://localhost:8000";
 const sio = io(SERVER_URL);
 let pt300 = 0.0;
 let pt5000 = 0.0;
@@ -77,6 +77,12 @@ sio.on('pressure5000', (data) => {
 });
 
 sio.on('BMSCells', (data) => {
+    console.log("BMS Cells: ", data);
+});
+sio.on('Distance', (data) => {
+    console.log("BMS Cells: ", data);
+});
+sio.on('Motor data', (data) => {
     console.log("BMS Cells: ", data);
 });
 
