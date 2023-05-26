@@ -10,5 +10,12 @@ sio = socketio.AsyncServer(
 pod_socket = PodSocketServer("/pod")
 sio.register_namespace(pod_socket)
 
-app = socketio.ASGIApp(sio)
+
+def on_startup() -> None:
+    """Run the FSM when starting the socket app"""
+    # This should be equivalent to asyncio.create_task(fsm.run())
+    sio.start_background_task(fsm.run)
+
+
+app = socketio.ASGIApp(sio, on_startup=on_startup)
 fsm = FSM(pod_socket)
