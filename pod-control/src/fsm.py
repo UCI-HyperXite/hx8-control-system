@@ -1,6 +1,6 @@
 import asyncio
 from enum import Enum
-from typing import Callable, Coroutine, Mapping
+from typing import Callable, Coroutine, Mapping, Optional
 
 from services.pod_socket_server import PodSocketServer
 
@@ -31,6 +31,9 @@ class FSM:
             State.RUNNING: self._running_periodic,
         }
 
+        # To avoid race conditions, socket handlers will defer state transitions
+        self._interrupt_state: Optional[State] = None
+
     async def run(self) -> None:
         """Tick the state machine by loop."""
         while True:
@@ -40,24 +43,29 @@ class FSM:
     def tick(self) -> None:
         """Tick the state machine by running the action for the current state."""
         self._pod_periodic()
+        next_state = self._state
         if self._state in self._state_transitions:
-            self._state_transitions[self._state]()
+            next_state = self._state_transitions[self._state]()
+        # This should be the only place where a value is assigned to self._state
+        self._state = self._interrupt_state or next_state
+        self._interrupt_state = None
 
     def _pod_periodic(self) -> None:
         """Perform operations on every tick."""
         pass
 
-    def _running_periodic(self) -> None:
+    def _running_periodic(self) -> State:
         """Perform operations when the pod is running."""
         self._running_tick += 1
+        return State.RUNNING
 
     async def handle_start(self, sid: str) -> None:
         """Start the FSM and the pod."""
-        self._state = State.RUNNING
+        self._interrupt_state = State.RUNNING
 
     async def handle_stop(self, sid: str) -> None:
         """Stop the FSM and the pod."""
-        self._state = State.STOPPED
+        self._interrupt_state = State.STOPPED
         # TODO: actually stop the pod
 
     def _register_handlers(self, handlers: Mapping[str, EventHandler]) -> None:
