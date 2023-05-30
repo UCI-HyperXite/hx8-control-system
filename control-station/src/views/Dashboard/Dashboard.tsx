@@ -14,6 +14,9 @@ function Dashboard() {
 					</p>
 				))}
 			</div>
+			<button onClick={() => podSocketClient.sendService()}>service</button>
+			<button onClick={() => podSocketClient.sendStart()}>start</button>
+			<button onClick={() => podSocketClient.sendStop()}>stop</button>
 		</div>
 	);
 }

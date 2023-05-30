@@ -1,7 +1,12 @@
+import logging
+
 import socketio
 
 from fsm import FSM
 from services.pod_socket_server import PodSocketServer
+
+logging.basicConfig(level=logging.INFO)
+
 
 sio = socketio.AsyncServer(
     async_mode="asgi", cors_allowed_origins="http://localhost:3000"

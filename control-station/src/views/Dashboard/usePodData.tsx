@@ -2,7 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import PodSocketClient, { PodData } from "services/PodSocketClient";
 
 function usePodData() {
-	const [podData, setPodData] = useState<PodData>({ status: "" });
+	const [podData, setPodData] = useState<PodData>({
+		tick: 0,
+		wheel: 0,
+	});
+
 	const podSocketClient = useMemo(() => new PodSocketClient(setPodData), []);
 
 	useEffect(() => {

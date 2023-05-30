@@ -1,10 +1,26 @@
 import asyncio
 from enum import Enum
-from typing import Callable, Coroutine, Mapping, Optional
+from logging import getLogger
+from math import pi
+from typing import Callable, Coroutine, Mapping, Optional, Union
 
+from components.brakes import Brakes
+# from components.high_voltage_system import HighVoltageSystem
+from components.motors import Motors
+# from components.pressure_transducer import measure_pressure
+from components.wheel_encoder import WheelEncoder
 from services.pod_socket_server import PodSocketServer
 
-EventHandler = Callable[..., None | Coroutine[None, None, None]]
+log = getLogger(__name__)
+
+# EventHandler = Callable[..., None | Coroutine[None, None, None]]
+EventHandler = Callable[..., Union[None, Coroutine[None, None, None]]]
+
+TRACK_FEET = 10
+INCH_PER_FEET = 12
+WHEEL_DIAMETER = 3  # in
+ENCODER_RESOLUTION = 16
+STOP_THRESHOLD = TRACK_FEET * INCH_PER_FEET / (WHEEL_DIAMETER * pi) * ENCODER_RESOLUTION
 
 
 class State(Enum):
@@ -22,6 +38,7 @@ class FSM:
             {
                 "start": self.handle_start,
                 "stop": self.handle_stop,
+                "service": self.handle_service,
             }
         )
 
@@ -43,6 +60,15 @@ class FSM:
 
         # To avoid race conditions, socket handlers will defer state transitions
         self._interrupt_state: Optional[State] = None
+
+        # components
+        # self._hvs = HighVoltageSystem()
+        # self._hvs.enable()
+
+        self._brakes = Brakes()
+        self._brakes.engage()
+        self._wheel_encoder = WheelEncoder()
+        self._motors = Motors()
 
     async def run(self) -> None:
         """Tick the state machine by loop."""
@@ -68,35 +94,67 @@ class FSM:
 
     def _pod_periodic(self) -> None:
         """Perform operations on every tick."""
-        pass
+        asyncio.create_task(self.socket.emit_stats({"tick": self._running_tick}))
 
     def _enter_service(self) -> None:
         """Perform operations once when entering the service state."""
-        pass
+        log.info("Entering service, disabling brakes")
+        self._brakes.disable()
 
     def _enter_running(self) -> None:
         """Perform operations once when starting to run the pod."""
         pass
+        log.info("Entering running")
+        self._brakes.disable()
+        self._motors.drive(8)
 
     def _running_periodic(self) -> State:
         """Perform operations when the pod is running."""
         self._running_tick += 1
+        # log.info(f"pressure {measure_pressure()}")
+        try:
+            self._wheel_encoder.measure()
+        except ValueError:
+            log.error("Wheel encoder faulted")
+            # return State.STOPPED
+
+        asyncio.create_task(
+            self.socket.emit_stats({"wheel": self._wheel_encoder.counter})
+        )
+
+        if self._wheel_encoder.counter > STOP_THRESHOLD:
+            return State.STOPPED
         return State.RUNNING
 
     def _enter_stopped(self) -> None:
         """Perform operations once when stopping the pod."""
-        pass
+        self._brakes.engage()
+        self._motors.stop()
+        log.info("Entering stopped")
 
     async def handle_start(self, sid: str) -> None:
         """Start the FSM and the pod."""
         self._interrupt_state = State.RUNNING
+        log.info(f"{sid} sent start")
+
+    async def handle_service(self, sid: str) -> None:
+        """Start the FSM and the pod."""
+        self._interrupt_state = State.SERVICE
 
     async def handle_stop(self, sid: str) -> None:
         """Stop the FSM and the pod."""
         self._interrupt_state = State.STOPPED
+        log.info(f"{sid} sent stop")
         # TODO: actually stop the pod
 
     def _register_handlers(self, handlers: Mapping[str, EventHandler]) -> None:
         """Register given handlers as socket event handlers."""
         for event, handler in handlers.items():
             setattr(self.socket, f"on_{event}", handler)
+
+    def stop_heartbeat(self) -> None:
+        self._motors.stop_heartbeat()
+
+    def __del__(self) -> None:
+        self._motors.stop_heartbeat()
+        # self._hvs.disable()
