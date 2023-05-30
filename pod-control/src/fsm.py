@@ -7,6 +7,7 @@ from typing import Callable, Coroutine, Mapping, Optional, Union
 from components.brakes import Brakes
 # from components.high_voltage_system import HighVoltageSystem
 from components.motors import Motors
+from components.signal_light import SignalLight
 # from components.pressure_transducer import measure_pressure
 from components.wheel_encoder import WheelEncoder
 from services.pod_socket_server import PodSocketServer
@@ -53,6 +54,7 @@ class FSM:
 
         # Enter actions are run once when transitioning to a state from a different one
         self._enter_actions = {
+            State.INIT: self._enter_init,
             State.SERVICE: self._enter_service,
             State.RUNNING: self._enter_running,
             State.STOPPED: self._enter_stopped,
@@ -69,6 +71,7 @@ class FSM:
         self._brakes.engage()
         self._wheel_encoder = WheelEncoder()
         self._motors = Motors()
+        self._signal_light = SignalLight()
 
     async def run(self) -> None:
         """Tick the state machine by loop."""
@@ -104,6 +107,7 @@ class FSM:
     def _enter_running(self) -> None:
         """Perform operations once when starting to run the pod."""
         pass
+        self._signal_light.enable()
         log.info("Entering running")
         self._brakes.disable()
         self._motors.drive(8)
@@ -124,13 +128,18 @@ class FSM:
 
         if self._wheel_encoder.counter > STOP_THRESHOLD:
             return State.STOPPED
+
         return State.RUNNING
+
+    def _enter_init(self) -> None:
+        self._signal_light.disable()
 
     def _enter_stopped(self) -> None:
         """Perform operations once when stopping the pod."""
         self._brakes.engage()
         self._motors.stop()
         log.info("Entering stopped")
+        self._signal_light.disable()
 
     async def handle_start(self, sid: str) -> None:
         """Start the FSM and the pod."""
