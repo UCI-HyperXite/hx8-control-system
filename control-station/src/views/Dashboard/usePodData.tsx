@@ -5,6 +5,7 @@ function usePodData() {
 	const [podData, setPodData] = useState<PodData>({
 		tick: 0,
 		wheel: 0,
+		pressureDownstream: 0.0,
 	});
 
 	const podSocketClient = useMemo(() => new PodSocketClient(setPodData), []);

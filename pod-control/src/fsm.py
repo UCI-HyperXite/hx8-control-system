@@ -7,8 +7,9 @@ from typing import Callable, Coroutine, Mapping, Optional, Union
 from components.brakes import Brakes
 # from components.high_voltage_system import HighVoltageSystem
 from components.motors import Motors
+from components.pressure_transducer import PressureTransducer
 from components.signal_light import SignalLight
-# from components.pressure_transducer import measure_pressure
+
 from components.wheel_encoder import WheelEncoder
 from services.pod_socket_server import PodSocketServer
 
@@ -22,6 +23,8 @@ INCH_PER_FEET = 12
 WHEEL_DIAMETER = 3  # in
 ENCODER_RESOLUTION = 16
 STOP_THRESHOLD = TRACK_FEET * INCH_PER_FEET / (WHEEL_DIAMETER * pi) * ENCODER_RESOLUTION
+
+ADDRESS_PT_DOWNSTREAM = 0x40
 
 
 class State(Enum):
@@ -70,6 +73,7 @@ class FSM:
         self._brakes = Brakes()
         self._brakes.engage()
         self._wheel_encoder = WheelEncoder()
+        self._pt_downstream = PressureTransducer(ADDRESS_PT_DOWNSTREAM)
         self._motors = Motors()
         self._signal_light = SignalLight()
 
@@ -97,7 +101,16 @@ class FSM:
 
     def _pod_periodic(self) -> None:
         """Perform operations on every tick."""
-        asyncio.create_task(self.socket.emit_stats({"tick": self._running_tick}))
+        asyncio.create_task(
+            self.socket.emit_stats(
+                {
+                    "tick": self._running_tick,
+                    "pressureDownstream": round(
+                        self._pt_downstream.measure_pressure(), 2
+                    ),
+                }
+            )
+        )
 
     def _enter_service(self) -> None:
         """Perform operations once when entering the service state."""
@@ -115,7 +128,7 @@ class FSM:
     def _running_periodic(self) -> State:
         """Perform operations when the pod is running."""
         self._running_tick += 1
-        # log.info(f"pressure {measure_pressure()}")
+
         try:
             self._wheel_encoder.measure()
         except ValueError:
