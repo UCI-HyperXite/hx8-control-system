@@ -1,6 +1,8 @@
 import time
 from logging import getLogger
 
+from signal_light import SignalLight
+
 import limmy
 
 log = getLogger(__name__)
@@ -39,10 +41,28 @@ class Motors:
 
 
 if __name__ == "__main__":
+    light = SignalLight()
+
+    SPEED = 2
+    T_DRIVE = 2
+
     motors = Motors()
-    motors.drive(4)
-    print("told motors to drive")
-    time.sleep(5)
-    motors.stop()
-    print("told motors to stop")
-    del motors
+
+    while True:
+        c = input("continue: ")
+        if c == "stop":
+            break
+
+        speed = int(input("speed: "))
+        run_time = int(input("time: "))
+
+        light.enable()
+        motors.drive(speed)
+        print(f"told motors to drive at {speed} for {time} seconds")
+        time.sleep(run_time)
+        print("told motors to stop")
+        motors.stop()
+        light.disable()
+
+    print("stopping heartbeat")
+    motors.stop_heartbeat()
