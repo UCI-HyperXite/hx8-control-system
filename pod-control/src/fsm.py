@@ -2,15 +2,16 @@ import asyncio
 from enum import Enum
 from logging import getLogger
 from math import pi
+from multiprocessing import Process, Value
 from typing import Callable, Coroutine, Mapping, Optional, Union
 
 from components.brakes import Brakes
 # from components.high_voltage_system import HighVoltageSystem
 from components.motors import Motors
 from components.pressure_transducer import PressureTransducer
+from components.process_encoder import wheel_encoder_process
 from components.signal_light import SignalLight
 
-from components.wheel_encoder import WheelEncoder
 from services.pod_socket_server import PodSocketServer
 
 log = getLogger(__name__)
@@ -72,16 +73,26 @@ class FSM:
 
         self._brakes = Brakes()
         self._brakes.engage()
-        self._wheel_encoder = WheelEncoder()
+        self._wheel_encoder_counter = Value("i", 0)
+        self._wheel_encoder_speed = Value("d", 0.0)
         self._pt_downstream = PressureTransducer(ADDRESS_PT_DOWNSTREAM)
         self._motors = Motors()
         self._signal_light = SignalLight()
 
     async def run(self) -> None:
         """Tick the state machine by loop."""
-        while True:
-            self.tick()
-            await asyncio.sleep(0.001)
+        p = Process(
+            target=wheel_encoder_process,
+            args=(self._wheel_encoder_counter, self._wheel_encoder_speed),
+        )
+        p.start()
+
+        try:
+            while True:
+                self.tick()
+                await asyncio.sleep(0.001)
+        finally:
+            p.join()
 
     def tick(self) -> None:
         """Tick the state machine by running the action for the current state."""
@@ -129,17 +140,17 @@ class FSM:
         """Perform operations when the pod is running."""
         self._running_tick += 1
 
-        try:
-            self._wheel_encoder.measure()
-        except ValueError:
-            log.error("Wheel encoder faulted")
-            # return State.STOPPED
-
         asyncio.create_task(
-            self.socket.emit_stats({"wheel": self._wheel_encoder.counter})
+            self.socket.emit_stats(
+                {
+                    "wheelCounter": self._wheel_encoder_counter.value,
+                    "wheelSpeed": self._wheel_encoder_speed.value,
+                }
+            )
         )
+        log.info(f"wheel encoder speed: {self._wheel_encoder_speed.value}")
 
-        if self._wheel_encoder.counter > STOP_THRESHOLD:
+        if self._wheel_encoder_counter.value > STOP_THRESHOLD:
             return State.STOPPED
 
         return State.RUNNING

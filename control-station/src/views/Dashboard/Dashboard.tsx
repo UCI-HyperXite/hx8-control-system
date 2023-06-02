@@ -8,11 +8,9 @@ function Dashboard() {
 			<h1>Dashboard</h1>
 			<button onClick={() => podSocketClient.sendPing()}>Send Ping</button>
 			<div>
-				{Object.entries(podData).map(([key, value]) => (
-					<p key={key}>
-						{key} - {value}
-					</p>
-				))}
+				<p>downstream pressure - {podData.pressureDownstream}</p>
+				<p>wheel counter - {podData.wheelCounter}</p>
+				<p>wheel speed - {podData.wheelSpeed.toFixed(2)}</p>
 			</div>
 			<button onClick={() => podSocketClient.sendService()}>service</button>
 			<button onClick={() => podSocketClient.sendStart()}>start</button>

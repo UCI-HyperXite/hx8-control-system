@@ -4,8 +4,9 @@ import PodSocketClient, { PodData } from "services/PodSocketClient";
 function usePodData() {
 	const [podData, setPodData] = useState<PodData>({
 		tick: 0,
-		wheel: 0,
 		pressureDownstream: 0.0,
+		wheelCounter: 0,
+		wheelSpeed: 0.0,
 	});
 
 	const podSocketClient = useMemo(() => new PodSocketClient(setPodData), []);

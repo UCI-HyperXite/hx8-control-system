@@ -17,8 +17,9 @@ interface ClientToServerEvents {
 
 export interface PodData {
 	tick: number;
-	wheel: number;
 	pressureDownstream: number;
+	wheelCounter: number;
+	wheelSpeed: number;
 }
 
 type SetPodData = Dispatch<SetStateAction<PodData>>;
