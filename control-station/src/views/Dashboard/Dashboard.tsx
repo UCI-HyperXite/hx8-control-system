@@ -1,3 +1,4 @@
+import KeyboardStopHandler from "components/KeyboardStopHandler";
 import usePodData from "./usePodData";
 
 function Dashboard() {
@@ -12,6 +13,7 @@ function Dashboard() {
 				<p>wheel counter - {podData.wheelCounter}</p>
 				<p>wheel speed - {podData.wheelSpeed.toFixed(2)}</p>
 			</div>
+			<KeyboardStopHandler podSocketClient={podSocketClient} />
 			<button onClick={() => podSocketClient.sendService()}>service</button>
 			<button onClick={() => podSocketClient.sendStart()}>start</button>
 			<button onClick={() => podSocketClient.sendStop()}>stop</button>
