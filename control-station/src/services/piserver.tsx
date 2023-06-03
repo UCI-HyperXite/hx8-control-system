@@ -1,6 +1,14 @@
 import { io } from "socket.io-client";
-//const SERVER_URL = "http://169.234.44.242:8000";
+
+//Last Rockets:
+//const SERVER_URL = "http://192.168.0.11:8000";
+
+//Last Wifi:
+//const SERVER_URL = "http://169.234.33.130:8000";
+
+//Local:
 const SERVER_URL = "http://localhost:8000";
+
 const sio = io(SERVER_URL);
 let pt300 = 0.0;
 let pt5000 = 0.0;
@@ -10,6 +18,7 @@ let bms = 0.0;
 let vplus = 0.0;
 let vminus = 0.0;
 let shuntcurr = 0.0;
+
 sio.on('connect', () => {
     console.log('connected');
     sio.emit('sum', { numbers: [1, 2] });
@@ -34,6 +43,9 @@ sio.on('stopping pod', (data) => {
     console.log(data);
 });
 
+sio.on('force stopping pod', (data) => {
+    console.log(data);
+});
 sio.on('state1', (data) => {
     console.log(data);
 });
@@ -87,7 +99,7 @@ sio.on('Motor data', (data) => {
 });
 
 export function load() {
-    sio.emit("load",);
+    sio.emit("load", 5);
     console.log("Load sent");
 }
 
@@ -97,7 +109,7 @@ export function stop() {
 }
 
 export function fstop() {
-    sio.emit("stop", 4);
+    sio.emit("stop", 5);
     console.log("Force Stop sent");
 }
 
@@ -106,6 +118,38 @@ export function start() {
     console.log("Start sent");
 }
 
+
+export function getPt300() {
+    return pt300;
+}
+
+export function getPt5000() {
+    return pt5000;
+}
+
+export function getSpeed() {
+    return speed;
+}
+
+export function getOdometer() {
+    return odometer;
+}
+
+export function getBms() {
+    return bms;
+}
+
+export function getVplus() {
+    return vplus;
+}
+
+export function getVminus() {
+    return vminus;
+}
+
+export function getShuntcurr() {
+    return shuntcurr;
+}
 export default sio;
-export { pt300, pt5000, odometer, speed, vminus, vplus, shuntcurr, bms };
+//export { pt300, pt5000, odometer, speed, vminus, vplus, shuntcurr, bms };
 

@@ -1,7 +1,7 @@
 import { CustomConsole } from 'customconsole';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
-import { bms, fstop, load, odometer, pt300, pt5000, shuntcurr, speed, start, stop, vminus, vplus } from "services/piserver";
+import { fstop, getBms, getOdometer, getPt300, getPt5000, getShuntcurr, getSpeed, getVminus, getVplus, load, start, stop } from "services/piserver";
 
 import "./panel1.css";
 
@@ -22,8 +22,8 @@ function Panel1() {
                             <th style={{ fontSize: '25px' }}>PT 5000</th>
                         </tr>
                         <tr>
-                            <td style={{ fontSize: '50px', color: 'white' }}>{pt300}</td>
-                            <td style={{ fontSize: '50px', color: 'white' }}>{pt5000}</td>
+                            <td style={{ fontSize: '50px', color: 'white' }}>{getPt300()}</td>
+                            <td style={{ fontSize: '50px', color: 'white' }}>{getPt5000()}</td>
                         </tr>
                     </table></div>
                     <div className="pnuem" > <table>
@@ -32,8 +32,8 @@ function Panel1() {
                             <th style={{ fontSize: '30px' }}>Odometer</th>
                         </tr>
                         <tr>
-                            <td style={{ fontSize: '80px', color: 'white' }}>{speed}</td>
-                            <td style={{ fontSize: '80px', color: 'white' }}>{odometer}</td>
+                            <td style={{ fontSize: '80px', color: 'white' }}>{getSpeed()}</td>
+                            <td style={{ fontSize: '80px', color: 'white' }}>{getOdometer()}</td>
                         </tr></table></div>
                     <div className="console"><CustomConsole /></div>
                     <div className="consolebar">Error Console</div>
@@ -50,10 +50,10 @@ function Panel1() {
                                 <th style={{ fontSize: '20px' }}>Shunt Current</th>
                             </tr>
                             <tr>
-                                <td style={{ fontSize: '50px', color: 'white' }}>{bms}</td>
-                                <td style={{ fontSize: '50px', color: 'white' }}>{vplus}</td>
-                                <td style={{ fontSize: '50px', color: 'white' }}>{vminus}</td>
-                                <td style={{ fontSize: '50px', color: 'white' }}>{shuntcurr}</td>
+                                <td style={{ fontSize: '50px', color: 'white' }}>{getBms()}</td>
+                                <td style={{ fontSize: '50px', color: 'white' }}>{getVplus()}</td>
+                                <td style={{ fontSize: '50px', color: 'white' }}>{getVminus()}</td>
+                                <td style={{ fontSize: '50px', color: 'white' }}>{getShuntcurr()}</td>
                             </tr></table></div>
                     </Row>
 
