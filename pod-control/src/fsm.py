@@ -19,11 +19,11 @@ log = getLogger(__name__)
 # EventHandler = Callable[..., None | Coroutine[None, None, None]]
 EventHandler = Callable[..., Union[None, Coroutine[None, None, None]]]
 
-TRACK_FEET = 10
+TRACK_FEET = 70
 INCH_PER_FEET = 12
 WHEEL_DIAMETER = 3  # in
-ENCODER_RESOLUTION = 16
-STOP_THRESHOLD = TRACK_FEET * INCH_PER_FEET / (WHEEL_DIAMETER * pi) * ENCODER_RESOLUTION
+WE_RESOLUTION = 16
+STOP_THRESHOLD = TRACK_FEET * INCH_PER_FEET / (WHEEL_DIAMETER * pi) * WE_RESOLUTION
 
 ADDRESS_PT_DOWNSTREAM = 0x40
 
@@ -130,15 +130,14 @@ class FSM:
 
     def _enter_running(self) -> None:
         """Perform operations once when starting to run the pod."""
-        pass
         self._signal_light.enable()
         log.info("Entering running")
         self._brakes.disable()
-        self._motors.drive(8)
 
     def _running_periodic(self) -> State:
         """Perform operations when the pod is running."""
         self._running_tick += 1
+        self._motors.drive(20)
 
         asyncio.create_task(
             self.socket.emit_stats(
@@ -187,7 +186,3 @@ class FSM:
 
     def stop_heartbeat(self) -> None:
         self._motors.stop_heartbeat()
-
-    def __del__(self) -> None:
-        self._motors.stop_heartbeat()
-        # self._hvs.disable()

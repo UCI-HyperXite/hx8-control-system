@@ -22,5 +22,5 @@ def on_startup() -> None:
     sio.start_background_task(fsm.run)
 
 
-app = socketio.ASGIApp(sio, on_startup=on_startup)
 fsm = FSM(pod_socket)
+app = socketio.ASGIApp(sio, on_startup=on_startup, on_shutdown=fsm.stop_heartbeat)
