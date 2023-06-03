@@ -75,6 +75,7 @@ class FSM:
         self._brakes.engage()
         self._wheel_encoder_counter = Value("i", 0)
         self._wheel_encoder_speed = Value("d", 0.0)
+        self._wheel_encoder_fault = Value("b", 0)
         self._pt_downstream = PressureTransducer(ADDRESS_PT_DOWNSTREAM)
         self._motors = Motors()
         self._signal_light = SignalLight()
@@ -83,7 +84,11 @@ class FSM:
         """Tick the state machine by loop."""
         p = Process(
             target=wheel_encoder_process,
-            args=(self._wheel_encoder_counter, self._wheel_encoder_speed),
+            args=(
+                self._wheel_encoder_counter,
+                self._wheel_encoder_speed,
+                self._wheel_encoder_fault,
+            ),
         )
         p.start()
 
@@ -137,6 +142,11 @@ class FSM:
     def _running_periodic(self) -> State:
         """Perform operations when the pod is running."""
         self._running_tick += 1
+
+        if self._wheel_encoder_fault.value:
+            log.error("Wheel encoder faulted")
+            return State.STOPPED
+
         self._motors.drive(20)
 
         asyncio.create_task(

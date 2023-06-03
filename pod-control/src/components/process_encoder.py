@@ -36,7 +36,10 @@ class WheelEncoder:
     """
 
     def __init__(
-        self, counter_value: Synchronized[int], speed_value: Synchronized[float]
+        self,
+        counter_value: Synchronized[int],
+        speed_value: Synchronized[float],
+        fault_value: Synchronized[bool],
     ) -> None:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup((PIN_ENCODER_A, PIN_ENCODER_B), GPIO.IN)
@@ -45,6 +48,7 @@ class WheelEncoder:
 
         self._counter = counter_value
         self._speed = speed_value
+        self._fault = fault_value
         self.reset()
         log.info("Process encoder setup complete.")
 
@@ -64,7 +68,7 @@ class WheelEncoder:
 
         if inc == 2:
             log.error("WHEEL ENCODER FAULT", state, self._last_state)
-            raise ValueError
+            self._fault.value = True
 
         if inc != 0:
             log.debug("counter: ", self._counter.value, current_time - self._start_time)
@@ -85,9 +89,11 @@ class WheelEncoder:
 
 
 def wheel_encoder_process(
-    counter_value: Synchronized[int], speed_value: Synchronized[float]
+    counter_value: Synchronized[int],
+    speed_value: Synchronized[float],
+    fault_value: Synchronized[bool],
 ) -> None:
-    wheel_encoder = WheelEncoder(counter_value, speed_value)
+    wheel_encoder = WheelEncoder(counter_value, speed_value, fault_value)
     while True:
         wheel_encoder.measure()
         time.sleep(0)
@@ -98,6 +104,9 @@ if __name__ == "__main__":
 
     counter_value = Value("i", 0)
     speed_value = Value("d", 0.0)
-    p = Process(target=wheel_encoder_process, args=(counter_value, speed_value))
+    fault_value = Value("b", False)
+    p = Process(
+        target=wheel_encoder_process, args=(counter_value, speed_value, fault_value)
+    )
     p.start()
     p.join()
